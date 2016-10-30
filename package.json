@@ -1,0 +1,24 @@
+{
+  "name": "material-icons-webpack-ligature-transform",
+  "version": "1.0.0",
+  "description": "webpack loader to transform your material icons defined with ligatures to numeric references",
+  "main": "index.js",
+  "author": "Samuel J Roberton <sjroberton8@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "webpack --config ./example/webpack.config.js"
+  },
+  "dependencies": {
+    "material-design-icons": "^3.0.1"
+  },
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-core": "^6.18.0",
+    "babel-loader": "^6.2.7",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "webpack": "2.1.0-beta.25"
+  }
+}
