@@ -23,7 +23,10 @@ config.module = {
     {
       test: /\.js$/,
       exclude: path.resolve(__dirname, '../', 'node_modules'),
-      loaders: ['babel?presets[]=es2015,presets[]=react']
+      loaders: [
+        'babel?presets[]=es2015,presets[]=react',
+        path.resolve(__dirname, '../', 'ligatureToUnicode.js'),
+        ]
     }, {
       test: /\.json$/,
       loader: 'json-loader'
