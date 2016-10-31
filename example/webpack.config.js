@@ -25,7 +25,7 @@ config.module = {
       exclude: path.resolve(__dirname, '../', 'node_modules'),
       loaders: [
         'babel?presets[]=es2015,presets[]=react',
-        path.resolve(__dirname, '../', 'ligatureToUnicode.js'),
+        path.resolve(__dirname, '../', 'index.js'),
         ]
     }, {
       test: /\.json$/,
