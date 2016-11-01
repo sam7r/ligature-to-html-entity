@@ -21,9 +21,9 @@
     "example-webpack": "webpack --config ./example/webpack.config.js"
   },
   "dependencies": {
+    "colors": "^1.1.2",
     "loader-utils": "^0.2.16",
-    "material-design-icons": "^3.0.1",
-    "path": "^0.12.7"
+    "material-design-icons": "^3.0.1"
   },
   "devDependencies": {
     "babel": "^6.5.2",
