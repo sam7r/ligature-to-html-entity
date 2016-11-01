@@ -1,13 +1,13 @@
 {
-  "name": "ligature-to-unicode-icons",
+  "name": "ligature-to-html-entity",
   "version": "1.0.0",
-  "description": "webpack loader to transform your material icons from ligature to unicode",
+  "description": "Webpack loader to transform your google material design icons from ligature to HTML entities",
   "main": "index.js",
   "author": "Samuel J Roberton <sjroberton8@gmail.com>",
   "license": "MIT",
   "scripts": {
     "test": "tape ./test/**/*.js | tap-spec",
-    "example-test": "webpack --config ./example/webpack.config.js"
+    "example-webpack": "webpack --config ./example/webpack.config.js"
   },
   "dependencies": {
     "loader-utils": "^0.2.16",
