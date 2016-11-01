@@ -3,40 +3,65 @@
 /**
  * replace p1 capture group in all instances of source
  * 
- * @param {string} regEx regular expression string
+ * @param {string} tag html element to target
+ * @param {string} className css class name to identify correct element selection
  * @param {string} source original source code to be parsed
  * @param {object} replaceValueList object containing replacement values
  * @returns string
  */
-module.exports.findAndReplaceLigatures = function(regEx, source, replaceValueList, es5) {
-  return source.replace(regEx, function(match, p1) {
+module.exports.findAndReplaceLigatures = (tag, attr, source, entityList, debug) => {
+  // build regular expression
+  const escTag = tag.replace('-', '\\-');
+  const regEx = new RegExp('<'+ escTag +'[^>]*>([^<]*)<\/'+ escTag +'>','ig');
 
-    let target = p1;
+  // vars to display stats if debugging 
+  const replacedValues = [];
+  const skippedValues = [];
 
-    // if matched element is not a material icon return
-    if(!match.includes('material-icons')) return match;
+  const content = source.replace(regEx, function(match, p1) {
 
-    if(es5) {
-      // if es5 expecting comma seprated values
-      const elArr = target.split(',');
-      // expected target to be ligature text
-      target = (elArr[2]) ? elArr[2].replace(new RegExp("'", 'g'), '') : null;
+    // if matched element has required attr and does not find a match return 
+    if(attr && !match.includes(attr)) {
+      skippedValues.push(match);
+      return match;
     }
+
     // expect p1 to be ligature
-    const ligature = target.trim();
+    const ligature = p1.trim();
    
-    if (ligature) {
-      const replaceValue = replaceValueList[ligature];
+    if(ligature) {
+      const replaceValue = entityList[ligature];
       // if replaceValue exists replace ligature
-      if (replaceValue) return match.replace(ligature, '&#x' + replaceValue + ';');
-    } else {
-      throw 'Could not replace ' + ligature;
+      if(replaceValue) {
+        const htmlEntity = '&#x' + replaceValue + ';';
+        if(debug) replacedValues.push(match);
+        return match.replace(ligature, htmlEntity);
+      }
     }
-    
+
     // no match
+    skippedValues.push(match);
     return match;
 
   });
+
+  // in debug mode print all replaced values, modified count, found but not modified count
+  if(debug) {
+    console.log('\n------------------------------\n');
+    console.log('# DEBUG: ligature-to-html-entity');
+    console.log('\n')
+    console.log('- tag: '+ tag);
+    console.log('- attr: '+ attr);
+    console.log('\n')
+    console.log('> OK: ' + replacedValues.length + ' values found and REPLACED');
+    console.log(replacedValues);
+    console.log('\n')
+    console.log('> NotOK ' + skippedValues.length + ' matches found but NOT modified');
+    console.log(skippedValues);
+    console.log('\n------------------------------\n');
+  }
+
+  return content;
 };
 
 /**
@@ -44,7 +69,7 @@ module.exports.findAndReplaceLigatures = function(regEx, source, replaceValueLis
  * 
  * @param {string} ligature
  */
-module.exports.codepointsToObject = function(file) {
+module.exports.codepointsToObject = (file) => {
   // codepoints container
   const codepointsObj = {};
 
@@ -66,7 +91,7 @@ module.exports.codepointsToObject = function(file) {
  * 
  * @param {string} dir string path of file
  */
-module.exports.getFile = function(dir) {
+module.exports.getFile = (dir) => {
   const fs = require('fs');
   return fs.readFileSync(dir, 'utf-8');
 };

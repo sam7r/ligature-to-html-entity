@@ -1,6 +1,8 @@
-const constants = require('./constants');
+const loaderUtils = require('loader-utils');
+
 const findAndReplaceLigatures = require('./ligatureToEntity').findAndReplaceLigatures;
 const codepointsToObject = require('./ligatureToEntity').codepointsToObject;
+const generateRegEx = require('./ligatureToEntity').generateRegEx;
 const getFile = require('./ligatureToEntity').getFile;
 
 /**
@@ -11,16 +13,11 @@ const getFile = require('./ligatureToEntity').getFile;
  * @returns string
  */
 module.exports = function(source) {
-  // format query
-  const query = (this.query) ? this.query.replace('?', '') : null ;
 
   // check if loader is first
-  const isLoaderFirst = (this.loaders.length - 1) === this.loaderIndex;
+  const isLoaderFirst = (this.loaders.length - 1) === this.loaderIndex;  
 
-  // check if babel enabled
-  const isBabel = query === 'babel';
-
-  // warn user loader may not work properly
+  // warn user: loader must be placed first (pre-transpiled) 
   if(!isLoaderFirst) {
     this.emitError(
       'ligature-to-entity expects to be loaded first (end of list), ' +
@@ -33,15 +30,22 @@ module.exports = function(source) {
     );
   }
 
+  // format query
+  const query = loaderUtils.parseQuery(this.query);
+
+  // define tag and attr values
+  const tag = (!query.tag) ? 'i' : query.tag ;
+  const attr = (typeof query.attr !== 'undefined') ? query.attr : 'material-icons' ;
+  
+  // is debug active?
+  const debug = (!query.debug) ? false : true ;
+
   // map codepoints file to js object
   const codepointsDir = require.resolve('material-design-icons/iconfont/codepoints');
   const codepoints = codepointsToObject(getFile(codepointsDir));
 
-  // set correct REG EXP 
-  const REG_EXP = !isBabel ? constants.JSX_REGEX : constants.ES5_REGEX ;
-
   // modify source replacing ligatures
-  const content = findAndReplaceLigatures(constants.JSX_REGEX, source, codepoints, isBabel);
+  const content = findAndReplaceLigatures(tag, attr, source, codepoints, debug);
 
   // return transformed source
   return content;
