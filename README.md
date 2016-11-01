@@ -2,8 +2,7 @@
 
 [![Build Status](https://travis-ci.org/sam7r/ligature-to-html-entity.svg?branch=master)](https://travis-ci.org/sam7r/ligature-to-html-entity)
 [![dependencies Status](https://david-dm.org/sam7r/ligature-to-html-entity/status.svg)](https://david-dm.org/sam7r/ligature-to-html-entity)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
-
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)  
 
 This project was created to avoid refactoring the usage of ligatures with [material-design-icons](https://github.com/google/material-design-icons), in a React application where older browser support is required.  
 
@@ -19,7 +18,12 @@ By using the [material-design-icons](https://github.com/google/material-design-i
 
 
 ## Usage
-When inserting this loader into your Webpack configuration, make sure to place it last in the list (as below). 
+Install as a dev dependency via npm (or yarn).
+```
+$ yarn add ligature-to-html-entity --dev
+```
+
+When inserting this loader into your Webpack configuration, make sure to place it **last in the list** (as below). 
 
 ```
 # webpack.config.js
@@ -35,6 +39,7 @@ When inserting this loader into your Webpack configuration, make sure to place i
 ```
 
 ### Default usage
+This is the result if run with no query params, targeting the typical material-icons element markup.
 ```
 # 'ligature-to-html-entity
 
@@ -42,8 +47,7 @@ When inserting this loader into your Webpack configuration, make sure to place i
 ```
 
 ### Custom query
-You can add the tag and / or attr as a query param.
-In this example we are setting the tag to *md-icon* and omitting the attribute by using a minus char.
+You can add the *tag* and *attr* as a query params. In this example we are setting the tag to *md-icon* and omitting the attribute by using a minus char.  
 ```
 # 'ligature-to-html-entity?tag=md-icon&-attr
 
@@ -56,7 +60,7 @@ In this example we are setting the tag to *md-icon* and omitting the attribute b
 | ------------- |----------------| -----                                                | ------------                                |
 | tag           | i              | DOM element tag (`<icon-tag></icon-tag>`)              | `?tag=icon-tag`                             |
 | attr          | material-icons | attr/attr val (`<i attr="attr-val"></i>`)  | `?-attr` (false), `?attr=material-icons`     |
-| debug         | false          | affected element details logged to the console | `?debug` (true)                             |
+| debug         | false          | print affected element details to the console | `?debug` (true)                             |
 
 
 ## Contributing
