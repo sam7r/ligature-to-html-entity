@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * replace p1 capture group in all instances of source
  * 
@@ -6,21 +8,36 @@
  * @param {object} replaceValueList object containing replacement values
  * @returns string
  */
-module.exports.findAndReplaceLigatures = function(regEx, sourcecode, replaceValueList) {
-  return sourcecode.replace(regEx, function(match, p1) {
+module.exports.findAndReplaceLigatures = function(regEx, source, replaceValueList, es5) {
+  return source.replace(regEx, function(match, p1) {
+
+    let target = p1;
+
     // if matched element is not a material icon return
-    if(!match.includes('material-icons')) return match; 
+    if(!match.includes('material-icons')) return match;
+
+    if(es5) {
+      // if es5 expecting comma seprated values
+      const elArr = target.split(',');
+      // expected target to be ligature text
+      target = (elArr[2]) ? elArr[2].replace(new RegExp("'", 'g'), '') : null;
+    }
     // expect p1 to be ligature
-    const ligature = p1.trim();
-    // if m1 and ligature returns match, replaced value   
+    const ligature = target.trim();
+   
     if (ligature) {
       const replaceValue = replaceValueList[ligature];
-      if (replaceValue) return match.replace(ligature, '&#x' + replaceValue);
-    };
+      // if replaceValue exists replace ligature
+      if (replaceValue) return match.replace(ligature, '&#x' + replaceValue + ';');
+    } else {
+      throw 'Could not replace ' + ligature;
+    }
+    
     // no match
     return match;
+
   });
-}
+};
 
 /**
  * converts given codepoints file to object -> {ligature : unicode}
@@ -42,7 +59,7 @@ module.exports.codepointsToObject = function(file) {
   });
 
   return codepointsObj;
-}
+};
 
 /**
  * converts given codepoints file to object -> {ligature : unicode}
@@ -52,4 +69,4 @@ module.exports.codepointsToObject = function(file) {
 module.exports.getFile = function(dir) {
   const fs = require('fs');
   return fs.readFileSync(dir, 'utf-8');
-}
+};

@@ -1,12 +1,14 @@
+'use strict';
 const expect = require('expect');
 const test = require('tape');
 const constants = require('../constants');
-const ligatureToUnicode = require('../index.js'); // main export
-const codepointsToObject = require('../ligatureToUnicode').codepointsToObject;
-const getFile = require('../ligatureToUnicode').getFile;
+const codepointsToObject = require('../ligatureToEntity').codepointsToObject;
+const getFile = require('../ligatureToEntity').getFile;
+const ligatureToEntity = require('../index.js').bind({ loaderIndex: 0, loaders: [1] });
 
 // get codepoints object
 const codepoints = codepointsToObject(getFile(constants.CODEPOINTS_DIR));
+
 
 /**
  * get unicode string value of ligature
@@ -15,7 +17,7 @@ const codepoints = codepointsToObject(getFile(constants.CODEPOINTS_DIR));
  * @returns string unicode value
  */
 function getUnicode(ligature) {
-  return '&#x' + codepoints[ligature];
+  return '&#x' + codepoints[ligature] + ';';
 };
 
 /**
@@ -31,9 +33,9 @@ function generateIconHtml(icons) {
 }
 
 // tests main ligatureToUnicode method
-test('ligatureToUnicode single icon replace in HTML', t => {
+test('ligatureToEntity single icon replace in HTML', t => {
   const singleIcon = generateIconHtml(['zoom_in']);
-  const singleIconContent = ligatureToUnicode(singleIcon);
+  const singleIconContent = ligatureToEntity(singleIcon);
 
   t.ok(expect(singleIconContent).toNotContain('zoom_in'), 'ligature zoom_in no longer exists');
   t.ok(expect(singleIconContent).toContain(getUnicode('zoom_in')), 'unicode for zoom_out_map has been inserted');
@@ -42,10 +44,10 @@ test('ligatureToUnicode single icon replace in HTML', t => {
 });
 
 // tests main ligatureToUnicode method
-test('ligatureToUnicode mulitple icon replace in HTML', t => {
+test('ligatureToEntity mulitple icon replace in HTML', t => {
 
   const multipleIcons = generateIconHtml(['zoom_in', 'zoom_out', 'zoom_out_map']);
-  const multipleIconsContent = ligatureToUnicode(multipleIcons);
+  const multipleIconsContent = ligatureToEntity(multipleIcons);
 
   t.ok(expect(multipleIconsContent).toNotContain('zoom_in'), 'ligature zoom_in no longer exists');
   t.ok(expect(multipleIconsContent).toContain(getUnicode('zoom_in')), 'unicode for zoom_in has been inserted');
