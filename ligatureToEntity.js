@@ -12,30 +12,32 @@
 module.exports.findAndReplaceLigatures = (tag, attr, source, entityList, debug) => {
   // build regular expression
   const escTag = tag.replace('-', '\\-');
-  const regEx = new RegExp('<'+ escTag +'[^>]*>([^<]*)<\/'+ escTag +'>','ig');
+  const regEx = new RegExp('(<'+ escTag +'[^>]*>)([^<]*)(<\/'+ escTag +'>)','ig');
 
   // vars to display stats if debugging 
   const replacedValues = [];
   const skippedValues = [];
 
-  const content = source.replace(regEx, function(match, p1) {
-
+  const content = source.replace(regEx, function(match, p1, p2, p3) {
     // if matched element has required attr and does not find a match return 
     if(attr && !match.includes(attr)) {
       skippedValues.push(match);
       return match;
     }
 
-    // expect p1 to be ligature
-    const ligature = p1.trim();
+    // expect p2 to be ligature
+    const ligature = p2.trim();
    
     if(ligature) {
       const replaceValue = entityList[ligature];
       // if replaceValue exists replace ligature
       if(replaceValue) {
         const htmlEntity = '&#x' + replaceValue + ';';
-        if(debug) replacedValues.push(match);
-        return match.replace(ligature, htmlEntity);
+        // rebuild match
+        const result = p1 + htmlEntity + p3;
+        if(debug) replacedValues.push({ ligature, match, result });
+        // return new string
+        return result;
       }
     }
 
@@ -47,18 +49,20 @@ module.exports.findAndReplaceLigatures = (tag, attr, source, entityList, debug) 
 
   // in debug mode print all replaced values, modified count, found but not modified count
   if(debug) {
-    console.log('\n------------------------------\n');
-    console.log('# DEBUG: ligature-to-html-entity');
-    console.log('\n')
-    console.log('- tag: '+ tag);
-    console.log('- attr: '+ attr);
-    console.log('\n')
-    console.log('> OK: ' + replacedValues.length + ' values found and REPLACED');
-    console.log(replacedValues);
-    console.log('\n')
-    console.log('> NotOK ' + skippedValues.length + ' matches found but NOT modified');
-    console.log(skippedValues);
-    console.log('\n------------------------------\n');
+    const colors = require('colors');
+    const replCnt = replacedValues.length;
+    const skipCnt = skippedValues.length;
+    
+    if(replCnt) {
+      console.log('\n')
+      console.log(colors.green('> OK: ' + replCnt) + ' values found and REPLACED');
+      console.log(replacedValues);
+    }
+    if(skipCnt) {
+      console.log('\n')
+      console.log(colors.red('> NotOK ' + skipCnt) + ' matches found but NOT modified');
+      console.log(skippedValues);
+    }
   }
 
   return content;

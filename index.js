@@ -1,9 +1,8 @@
-const loaderUtils = require('loader-utils');
-
 const findAndReplaceLigatures = require('./ligatureToEntity').findAndReplaceLigatures;
 const codepointsToObject = require('./ligatureToEntity').codepointsToObject;
 const generateRegEx = require('./ligatureToEntity').generateRegEx;
 const getFile = require('./ligatureToEntity').getFile;
+const loaderUtils = require('loader-utils');
 
 /**
  * transforms source code replacing google material icon ligatures
