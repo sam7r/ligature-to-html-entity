@@ -5,6 +5,17 @@
   "main": "index.js",
   "author": "Samuel J Roberton <sjroberton8@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sam7r/ligature-to-html-entity"
+  },
+  "keywords": [
+    "webpack",
+    "material icons",
+    "ligature",
+    "html entities",
+    "react"
+  ],
   "scripts": {
     "test": "tape ./test/**/*.js | tap-spec",
     "example-webpack": "webpack --config ./example/webpack.config.js"
@@ -25,6 +36,6 @@
     "react-dom": "^15.3.2",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.2",
-    "webpack": "2.1.0-beta.25"
+    "webpack": "^1.13.3"
   }
 }
