@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/sam7r/ligature-to-html-entity.svg?branch=master)](https://travis-ci.org/sam7r/ligature-to-html-entity)
 [![dependencies Status](https://david-dm.org/sam7r/ligature-to-html-entity/status.svg)](https://david-dm.org/sam7r/ligature-to-html-entity)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)  
+[![npm version](https://img.shields.io/npm/v/ligature-to-html-entity.svg)](https://www.npmjs.com/package/ligature-to-html-entity.svg)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 
 This project was created to avoid refactoring the usage of ligatures with [material-design-icons](https://github.com/google/material-design-icons), in a React application where older browser support is required.  
 
