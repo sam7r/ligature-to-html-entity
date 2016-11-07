@@ -1,6 +1,7 @@
 const findAndReplaceLigatures = require('./ligatureToEntity').findAndReplaceLigatures;
 const codepointsToObject = require('./ligatureToEntity').codepointsToObject;
 const generateRegEx = require('./ligatureToEntity').generateRegEx;
+const sourceToAst = require('./ligatureToEntity').sourceToAst;
 const getFile = require('./ligatureToEntity').getFile;
 const loaderUtils = require('loader-utils');
 
@@ -17,17 +18,12 @@ module.exports = function(source) {
   const isLoaderFirst = (this.loaders.length - 1) === this.loaderIndex;  
 
   // warn user: loader must be placed first (pre-transpiled) 
-  if(!isLoaderFirst) {
-    this.emitError(
-      'ligature-to-entity expects to be loaded first (end of list), ' +
-      'to work properly: \n' +
-      'loaders: [\n' +
-      '  react-hot\n' +
-      '  babel?presets[]=es2015,presets[]=react\n' +
-      "  ligature-to-entity \n" +
-      "]"
-    );
-  }
+  // if(!isLoaderFirst) {
+  //   this.emitError(
+  //     'ligature-to-entity is not being loaded first, if you are converting ' +
+  //     'to work properly: \n'
+  //   );
+  // }
 
   // format query
   const query = loaderUtils.parseQuery(this.query);
@@ -39,12 +35,21 @@ module.exports = function(source) {
   // is debug active?
   const debug = (!query.debug) ? false : true ;
 
+  // is debug active?
+  const jsx = (!query.jsx) ? false : true ;
+
+  const ast = sourceToAst(source, { 
+    sourceType: 'module',
+    range: true,
+    jsx: true
+  });
+
   // map codepoints file to js object
   const codepointsDir = require.resolve('material-design-icons/iconfont/codepoints');
   const codepoints = codepointsToObject(getFile(codepointsDir));
 
   // modify source replacing ligatures
-  const content = findAndReplaceLigatures(tag, attr, source, codepoints, debug);
+  const content = findAndReplaceLigatures(tag, attr, ast, codepoints, debug);
 
   // return transformed source
   return content;

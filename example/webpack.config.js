@@ -26,8 +26,8 @@ config.module = {
       test: /\.js$/,
       exclude: path.resolve(__dirname, '../', 'node_modules'),
       loaders: [
+        path.resolve(__dirname, '../', 'index.js')+'?debug',
         'babel?presets[]=es2015,presets[]=react',
-        path.resolve(__dirname, '../', 'index.js')+'?debug'
       ]
     }, {
       test: /\.json$/,
