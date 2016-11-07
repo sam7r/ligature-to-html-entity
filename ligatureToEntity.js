@@ -1,5 +1,12 @@
 'use strict';
 
+
+/**
+ * traverses object and runs given function
+ * 
+ * @param {object} node object
+ * @param {func} func callback function to run on node
+ */
 function traverse(node, func) {
   func(node);
   for (var key in node) {
@@ -14,6 +21,7 @@ function traverse(node, func) {
   }
 }
 
+
 /**
  * replace p1 capture group in all instances of source
  * 
@@ -24,81 +32,132 @@ function traverse(node, func) {
  * @returns string
  */
 module.exports.findAndReplaceLigatures = (tag, attr, ast, entityList, debug) => {
+  // lib to traverse and replace ast nodes
   const estraverse = require('estraverse');
-  // const parsed = JSON.stringify(syntax, null, 2);
 
-  // console.log('\b ----------------------------------------')
-  // console.log(JSON.stringify(syntax, null, 2));
-  // console.log('\b ----------------------------------------')
+  // jsx node type keys
+  const jsxKeys = require('estraverse-fb/keys');
+  const keys = Object.assign({}, 
+    jsxKeys,
+    { JSXText: ['name', 'value'] },
+    { ReturnStatement: ['type', 'argument'] }
+  )
 
-  estraverse.replace(ast, {
-    enter: function (node, parent) {
-      if (node.type === 'CallExpression' && node.arguments[0].value === tag) {
-        console.log(JSON.stringify(node.arguments, null, 4));
+  // modified and skipped value trackers for debug
+  const replacedValues = [];
+  const skippedValues = [];
+
+  // traverse ast code
+  const result = estraverse.replace(ast, {
+    keys, // append JSX keys
+    enter: (node) => {
+      // node copy to perform mutations on
+      const nodeCpy = Object.assign({}, node);
+      
+      // check for tag (es5)
+      const ES5TagMatch = (
+        node.type === 'CallExpression' && 
+        node.arguments[0].value === tag &&
+        node.arguments[2].type === 'Literal' &&
+        node.callee.property.name === 'createElement'
+      );
+
+      const JSXTagMatch = (
+        node.type === 'JSXElement' && 
+        (node.openingElement.name && node.openingElement.name.name === tag) &&
+        node.children.length === 1
+      );
+
+      const findAttr = (nodeToTraverse, attr, name, value) => {
+        let found = 0;
+        traverse(nodeToTraverse, (child) => {
+
+          if(child[name] && child[name] === attr ||
+            child[value] && child[value] === attr) found++ ;
+
+          else if (child[name] && child[name][name] === attr ||
+            child[value] && child[value][value] === attr) found++ ; 
+        });
+
+        return found;
       }
+
+      const replaceVal = (ligature, callback) => {
+        // get html entity from ligature
+        const replaceValue = entityList[ligature];
+        // if replaceValue exists replace ligature
+        if(replaceValue) {
+          const htmlEntity = '&#x' + replaceValue + ';';
+          if(debug) replacedValues.push({ 
+            ligature, 
+            match: htmlEntity
+          });
+          // apply entity to nodes in callback
+          if(typeof callback === 'function') callback(htmlEntity);
+        }
+      }
+
+      if (ES5TagMatch) {
+        // if attr given, check for attr
+        let foundAttr = false;
+        if(attr && node.arguments[1].type ==='ObjectExpression') {
+          foundAttr = findAttr(node.arguments[1].properties, attr, 'name', 'value');
+        }
+        
+        if(attr && foundAttr) {
+          // get html entity from ligature
+          const ligature = node.arguments[2].value;
+          replaceVal(ligature, (htmlEntity) => {
+            nodeCpy.arguments[2].value = htmlEntity;
+            nodeCpy.arguments[2].raw = htmlEntity;
+          });
+        }
+
+        return nodeCpy;
+      } 
+      
+      if (JSXTagMatch) {
+        // if attr given, check for attr
+        let foundAttr = false;
+        if(attr && node.openingElement.attributes.type === 'JSXAttribute' ) {
+          foundAttr = findAttr(node.openingElement.attributes, attr, 'name', 'value');
+        }
+
+        if(attr && foundAttr) {
+          // get html entity from ligature
+          const ligature = node.children[0].value;
+          replaceVal(ligature, (htmlEntity) => {
+            nodeCpy.children[0].value = htmlEntity;
+            nodeCpy.children[0].raw = htmlEntity;
+          });
+        }
+
+        return nodeCpy;
+      }
+
+      return nodeCpy;
     }
   });
 
-
-  const escodegen = require('escodegen');
-  return escodegen.generate(ast);
-
-  // // build regular expression
-  // const escTag = tag.replace('-', '\\-');
-  // const regEx = new RegExp('(<'+ escTag +'[^>]*>)([^<]*)(<\/'+ escTag +'>)','ig');
-
-  // // vars to display stats if debugging 
-  // const replacedValues = [];
-  // const skippedValues = [];
-
-  // const content = source.replace(regEx, function(match, p1, p2, p3) {
-  //   // if matched element has required attr and does not find a match return 
-  //   if(attr && !match.includes(attr)) {
-  //     skippedValues.push(match);
-  //     return match;
-  //   }
-
-  //   // expect p2 to be ligature
-  //   const ligature = p2.trim();
-   
-  //   if(ligature) {
-  //     const replaceValue = entityList[ligature];
-  //     // if replaceValue exists replace ligature
-  //     if(replaceValue) {
-  //       const htmlEntity = '&#x' + replaceValue + ';';
-  //       // rebuild match
-  //       const result = p1 + htmlEntity + p3;
-  //       if(debug) replacedValues.push({ ligature, match, result });
-  //       // return new string
-  //       return result;
-  //     }
-  //   }
-
-  //   // no match
-  //   skippedValues.push(match);
-  //   return match;
-
-  // });
-
-  // // in debug mode print all replaced values, modified count, found but not modified count
-  // if(debug) {
-  //   const colors = require('colors');
-  //   const replCnt = replacedValues.length;
-  //   const skipCnt = skippedValues.length;
+  // in debug mode print all replaced values, modified count, found but not modified count
+  if(debug) {
+    const replCnt = replacedValues.length;
+    const skipCnt = skippedValues.length;
     
-  //   if(replCnt) {
-  //     console.log('\n')
-  //     console.log(colors.green('> OK: ' + replCnt) + ' values found and REPLACED');
-  //     console.log(replacedValues);
-  //   }
-  //   if(skipCnt) {
-  //     console.log('\n')
-  //     console.log(colors.red('> NotOK ' + skipCnt) + ' matches found but NOT modified');
-  //     console.log(skippedValues);
-  //   }
-  // }
+    if(replCnt) {
+      console.log('\n')
+      console.log('> OK: ' + replCnt + ' values found and REPLACED');
+      console.log(JSON.stringify(replacedValues, null, 2));
+    }
+    if(skipCnt) {
+      console.log('\n')
+      console.log('> NotOK ' + skipCnt + ' matches found but NOT modified');
+      console.log(JSON.stringify(skippedValues, null, 2));
+    }
+  }
 
-  // return content;
+  return result;
+
 };
 
 /**
@@ -127,6 +186,7 @@ module.exports.codepointsToObject = (file) => {
  * converts source code (string) to an object using esprima 
  * 
  * @param {string} source
+ * @param {object} config
  * @return {object}
  */
 module.exports.sourceToAst = (source, config) => {
@@ -134,6 +194,19 @@ module.exports.sourceToAst = (source, config) => {
   const esprima = require('esprima');
   // return parsed AST
   return esprima.parse(source, config);
+};
+
+/**
+ * converts ast of source code back to string source 
+ * 
+ * @param {string} source
+ * @return {object}
+ */
+module.exports.astToSource = (ast) => {
+  // code generator
+  const escodegen = require('escodegen');
+  // return generated javascript code
+  return escodegen.generate(ast);
 };
 
 /**

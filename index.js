@@ -2,6 +2,7 @@ const findAndReplaceLigatures = require('./ligatureToEntity').findAndReplaceLiga
 const codepointsToObject = require('./ligatureToEntity').codepointsToObject;
 const generateRegEx = require('./ligatureToEntity').generateRegEx;
 const sourceToAst = require('./ligatureToEntity').sourceToAst;
+const astToSource = require('./ligatureToEntity').astToSource;
 const getFile = require('./ligatureToEntity').getFile;
 const loaderUtils = require('loader-utils');
 
@@ -16,15 +17,7 @@ module.exports = function(source) {
 
   // check if loader is first
   const isLoaderFirst = (this.loaders.length - 1) === this.loaderIndex;  
-
-  // warn user: loader must be placed first (pre-transpiled) 
-  // if(!isLoaderFirst) {
-  //   this.emitError(
-  //     'ligature-to-entity is not being loaded first, if you are converting ' +
-  //     'to work properly: \n'
-  //   );
-  // }
-
+  
   // format query
   const query = loaderUtils.parseQuery(this.query);
 
@@ -35,12 +28,9 @@ module.exports = function(source) {
   // is debug active?
   const debug = (!query.debug) ? false : true ;
 
-  // is debug active?
-  const jsx = (!query.jsx) ? false : true ;
-
+  // convert source (string) to AST 
   const ast = sourceToAst(source, { 
     sourceType: 'module',
-    range: true,
     jsx: true
   });
 
@@ -49,7 +39,10 @@ module.exports = function(source) {
   const codepoints = codepointsToObject(getFile(codepointsDir));
 
   // modify source replacing ligatures
-  const content = findAndReplaceLigatures(tag, attr, ast, codepoints, debug);
+  const astSource = findAndReplaceLigatures(tag, attr, ast, codepoints, debug);
+  
+  // generate source code from ast
+  const content = astToSource(astSource);
 
   // return transformed source
   return content;
