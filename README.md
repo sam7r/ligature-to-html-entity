@@ -14,9 +14,8 @@ By using the [material-design-icons](https://github.com/google/material-design-i
 This is v2 with **Webpack@4** support.<br>
 For **Webpack@2** support please use v1.
 
-```
-
-<i className="material-icons">face</i>   -->   <i className="material-icons">&#xf20e;</i>
+```html
+<i className="material-icons">face</i>   <!---->   <i className="material-icons">&#xf20e;</i>
 
 ```
 
@@ -61,7 +60,7 @@ This is the result if run with no query params, targeting the typical material-i
 ### Custom query
 You can add the *tag* and *attr* as a query params. In this example we are setting the tag to *md-icon* and omitting the attribute by using a minus char.  
 ```html
-# 'ligature-to-html-entity?tag=md-icon&-attr
+<!-- ligature-to-html-entity?tag=md-icon&-attr -->
 
 <md-icon>face</md-icon>   -->   <md-icon>&#xf20e;</md-icon>
 ```
