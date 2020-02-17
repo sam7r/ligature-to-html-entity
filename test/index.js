@@ -10,7 +10,7 @@ const codepointsDir = require.resolve('material-design-icons/iconfont/codepoints
 const codepoints = codepointsToObject(getFile(codepointsDir));
 
 // mock webpack props
-const loaderConfig = { loaderIndex: 0, loaders: [1] };
+const loaderConfig = { loaderIndex: 0, loaders: [1], query: "?debug" };
 
 /**
  * get html entity value of ligature

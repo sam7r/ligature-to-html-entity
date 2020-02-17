@@ -19,13 +19,19 @@ module.exports = function(source) {
   // warn user: loader must be placed first (pre-transpiled) 
   if(!isLoaderFirst) {
     this.emitError(
-      'ligature-to-entity expects to be loaded first (end of list), ' +
-      'to work properly: \n' +
-      'loaders: [\n' +
-      '  react-hot\n' +
-      '  babel?presets[]=es2015,presets[]=react\n' +
-      "  ligature-to-entity \n" +
-      "]"
+      '\nligature-to-entity expects to be loaded first (end of list), ' +
+      'to work properly, e.g. \n' +
+      'use: [ \n' +
+      '  { \n' +
+      "    loader: 'babel-loader', \n" +
+      '    options: { \n' +
+      '      "presets": ["@babel/preset-env", "@babel/preset-react"] \n' +
+      '    } \n' +
+      '  }, \n' +
+      '  { \n' +
+      '    loader: ligature-to-entity, \n' +
+      '  } \n' +
+      '] \n'
     );
   }
 
